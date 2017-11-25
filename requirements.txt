@@ -1,0 +1,3 @@
+# Requiring python3.6-dev for this library
+sparsesvd==0.2.2
+tqdm==4.19.4
