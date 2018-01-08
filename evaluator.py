@@ -70,8 +70,9 @@ class TimeBasedEvaluator(Evaluator):
     This evaluator guarantees that each user in test set will have at least one record in train set.
     """
 
-    def __init__(self, loader: Loader, partitions: List[Tuple[str, float]]=None):
+    def __init__(self, loader: Loader, partitions: List[Tuple[str, float]]=None, allow_rs_updating:bool = False):
         super().__init__()
+        self.allow_rs_updating = allow_rs_updating
         if partitions is None:
             partitions = [("train", 0.8), ("test", 0.2)]
 
@@ -101,8 +102,9 @@ class TimeBasedEvaluator(Evaluator):
     def _evaluate_scoring_on_partition(self, re: RecommenderEngine, partition: str,
                                        scorers: List[Callable] = None):
         scores = []
-        for rec in self.data_partitions[partition]:
+        for rec in tqdm.tqdm(self.data_partitions[partition]):
             prediction = re.predict_rating(rec.user_id, rec.item_id)
             scores.append([scorer(rec.rating, prediction) for scorer in scorers])
-            re.add_data(rec.user_id, rec.item_id, rec.rating, rec.timestamp)
+            if self.allow_rs_updating:
+                re.add_data(rec.user_id, rec.item_id, rec.rating, rec.timestamp)
         return scores
