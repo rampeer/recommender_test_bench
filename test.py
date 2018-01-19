@@ -5,7 +5,7 @@ import numpy as np
 
 from evaluator import TimeBasedEvaluator
 from loader import MovieLensLoader
-from recs import SVDBasedCF, AverageRatingRecs
+from recs import SVDBasedCF, AverageRatingRecs, ANNRecs
 from recs.user_cf import UserBasedNNCF
 
 random.seed(42)
@@ -20,6 +20,21 @@ def squared_error(a, b):
 def absolute_error(a, b):
     return np.abs((a - b))
 
+print("ANN CV")
+cv_results_ann = Counter()
+for last_layer_size in [8, 16, 32, 64]:
+    for lr in [0.0001 ,0.0005, 0.001, 0.005]:
+        params = {"item_embedding_size": last_layer_size * 2,
+                  "user_embedding_size": last_layer_size * 2,
+                  "dense_sizes": [last_layer_size * 4, last_layer_size * 2, last_layer_size],
+                  "lr": lr
+                  }
+        recs = ANNRecs(**params, epochs=50)
+        score = ev.evaluate_scoring(recs,
+                                    scorers=[squared_error, absolute_error], test_partitions=["valid"])
+        print("ANN (%d %f) %f %f" % (last_layer_size, lr, score[0], score[1]))
+        cv_results_ann[frozenset(params)] = -score[0]
+print(cv_results_ann)
 
 print("Performing CV for UserBasedCF")
 cv_results_user_based = Counter()
@@ -48,7 +63,12 @@ final_eval_params = {
 print("=" * 10, "Final scores", "=" * 10)
 
 print("Average rating recs", ev.evaluate_scoring(AverageRatingRecs(), **final_eval_params))
+
 best_params = cv_results_svd.most_common(1)[0][0]
 print("SVD(", best_params, ")", ev.evaluate_scoring(SVDBasedCF(best_params), **final_eval_params))
+
 best_params = cv_results_user_based.most_common(1)[0][0]
 print("UserBasedCF(", best_params, ")", ev.evaluate_scoring(UserBasedNNCF(*best_params), **final_eval_params))
+
+best_params = cv_results_ann.most_common(1)[0][0]
+print("ANN(", best_params, ")", ev.evaluate_scoring(UserBasedNNCF(**dict(best_params)), **final_eval_params))
