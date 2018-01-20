@@ -33,8 +33,7 @@ for last_layer_size in [8, 16, 32, 64]:
         score = ev.evaluate_scoring(recs,
                                     scorers=[squared_error, absolute_error], test_partitions=["valid"])
         print("ANN (%d %f) %f %f" % (last_layer_size, lr, score[0], score[1]))
-        cv_results_ann[frozenset(params)] = -score[0]
-print(cv_results_ann)
+        cv_results_ann[frozenset(params.items())] = -score[0]
 
 print("Performing CV for UserBasedCF")
 cv_results_user_based = Counter()
