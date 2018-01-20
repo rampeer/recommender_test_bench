@@ -19,17 +19,22 @@ but currently I'm just too fed up with them on my main job. Someday I will put t
 
 ### User-based collaborative filtering
 
-[Source](recs/user_cf.md)
+[Source](recs/user_cf.py)
 
 The staple of recommender systems, almost synonymous to them. For each user, this system finds N similar users
 (using some similarity measure), and uses actions of this neighbourhood to make predictions for the user.
+The algorithm is described in details [here](https://doi.org/10.1145/192844.192905) and
+[here](https://doi.org/10.1145/371920.372071).
 
-I haven't found any proper implementations of User-based CF in github, as authors tend miss the fact that we should take into
-account only co-rated items.
+Pearson correlation is used to measure user similarity, as it is commonly employed in literature.
+Rating average and weighted rating average may be used for prediction.
+Several engineering techniques such as lookups and sampling were used to speed up model computation.
+I haven't found any proper implementations of User-based CF, as authors tend miss the fact that we
+should take into account only co-rated items.
 
 ### SVD-based recommender system
 
-[Source](recs/svd_based_recs.md)
+[Source](recs/svd_based_recs.py)
 
 Recommender system based on matrix factorization of user-rating matrix. It can be viewed as assigning vectors to each
 item and user that way that dot product of these vectors would predict the rating (or deviance of the rating from
@@ -49,7 +54,7 @@ SVD update step I've inferred myself; a more general, industrial-level approach 
 
 ### Neural Collaborative Filtering
 
-[Source](recs/ann_recs.md)
+[Source](recs/ann_recs.py)
 
 This model is somewhat similar to the SVD-based recommender systems. It also assigns a vector to each item and user, but
 then it uses several stacked of fully-connected layers to make the prediction.
@@ -59,7 +64,7 @@ I had to make is change task type from classification with logloss to regression
 
 ### Average rating
 
-[Source](recs/average_rating_recs.md)
+[Source](recs/average_rating_recs.py)
 
 Predicts ratings using item average ratings. Commonly used as a baseline. It is described
 [here](http://ieeexplore.ieee.org/document/5680904).
