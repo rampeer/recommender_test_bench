@@ -20,7 +20,7 @@ class Loader:
         raise NotImplementedError()
 
 
-class Movie:
+class Item:
     def __init__(self, item_id: str, name: str, genres: List[str]):
         self.item_id = item_id
         self.name = name
@@ -44,12 +44,8 @@ class MovieLensLoader(Loader):
             "genres": str
         })
 
-        self.movies = {item_id: Movie(item_id, name, genres.split("|"))
-                       for item_id, name, genres in movies[["movieId", "title", "genres"]].values}  # type: Dict[str, Movie]
-
-    def download(self):
-        # ToDo: implement?
-        pass
+        self.movies = {item_id: Item(item_id, name, genres.split("|"))
+                       for item_id, name, genres in movies[["movieId", "title", "genres"]].values}  # type: Dict[str, Item]
 
     def get_records(self):
         for user_id, item_id, rating, timestamp in self.ratings[["userId", "movieId", "rating", "timestamp"]].values:
