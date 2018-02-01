@@ -21,7 +21,7 @@ class RecommenderEngine:
 
     def add_data(self, user_id: str, item_id: str, rating: float = 5.0, timestamp:int=0) -> None:
         """
-        indicates that userId was previously interested in itemId
+        Indicates that userId is interested in itemId
         """
         if user_id not in self.user_histories:
             self.user_histories[user_id] = list()  # defaultdict has some quirks, and I do not like it
@@ -31,6 +31,13 @@ class RecommenderEngine:
         # Adding same record to lookups for memory consumption reduction
         self.item_histories[item_id].append(rating_record)
         self.user_histories[user_id].append(rating_record)
+
+    def online_update_step(self, user_id: str, item_id: str) -> None:
+        """
+        RS may use approximate methods to update recommendations in this step.
+        This step should be computationally cheap.
+        """
+        pass
 
     def predict_interests(self, user_id: str, n: int=5) -> List[str]:
         """

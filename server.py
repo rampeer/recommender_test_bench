@@ -33,6 +33,7 @@ def show_history(user_id):
 def rate(user_id, item_id):
     try:
         rs.add_data(user_id, item_id, rating=float(request.args.get("rating", "5.0")))
+        rs.online_update_step(user_id, item_id)
         return jsonify({'ok': True})
     except Exception as e:
         logging.exception("Exception during subscriber optimization")
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     (args) = parser.parse_args()
     # Populating recommender system with data
     ldr = MovieLensLoader("data/movielens/", 10000000)
-    rs = SVDBasedCF(70, incremental_update=True)
+    rs = SVDBasedCF(70)
     for r in ldr.get_records():
         rs.add_data(r.user_id, r.item_id, r.rating, r.timestamp)
     rs.build()

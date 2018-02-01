@@ -10,12 +10,11 @@ from collections import Counter
 
 
 class SVDBasedCF(RecommenderEngine):
-    def __init__(self, components: int = 40, include_avg_rating: bool = False, incremental_update: bool = False):
+    def __init__(self, components: int = 40, include_avg_rating: bool = False):
         super().__init__()
         self.components = components
         self.global_average = 2.5
         self.include_avg_rating = include_avg_rating
-        self.incremental_update = incremental_update
 
         self.user_vectors = dict()  # type: Dict[str, np.array]
         self.item_vectors = dict()  # type: Dict[str, np.array]
@@ -28,16 +27,19 @@ class SVDBasedCF(RecommenderEngine):
         self.user_row_index = dict()  # type: Dict[str, int]
         self.item_col_index = dict()  # type: Dict[str, int]
 
-    def add_data(self, user_id: str, item_id: str, rating: float = 5.0, timestamp:int=0):
-        super().add_data(user_id, item_id, rating, timestamp)
-        if self.col_vectors_inv is not None and self.incremental_update:
-            # Half-update step. This is easily inferred from SVD formula.
-            # We cannot update average rating, however, as it invalidates all rows (i.e. we have to re-compute SVD).
+    def online_update_step(self, user_id: str, item_id: str):
+        if self.col_vectors_inv is not None:
+            # Online update step. This is easily inferred from SVD formula.
+            # We cannot update average rating, however, as it invalidates all rows (i.e. we have to recompute SVD).
+            rating = self.global_average
+            for r in self.user_histories[user_id]:
+                if r.item_id == item_id:
+                    rating = r.rating
             if item_id in self.item_col_index:
                 if user_id in self.user_row_index:
                     row_index = self.user_row_index[user_id]
                 else:
-                    # This is efficient matrix because we keed demeaned rating in dok-matrix
+                    # This is efficient matrix because we keep demeaned rating in dok-matrix
                     row_index = self.rating_matrix_demeaned.shape[0]
                     self.rating_matrix_demeaned.resize((
                         row_index + 1,
