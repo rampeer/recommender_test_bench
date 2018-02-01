@@ -10,22 +10,27 @@ app = Flask(__name__)
 
 
 @app.route("/rest/<user_id>/recommend", methods=['GET', 'POST'])
-def recommend_for_user(user_id):
+def recommend(user_id):
     interests = rs.predict_interests(user_id)
-    # Adding human-readable history and prediction interpretation for debug sake
+    predicted_interpretation = [(x, ldr.get_item_description(x)) for x in interests]
+    response = {
+        "recommendations": predicted_interpretation,
+    }
+    return jsonify(response)
+
+
+@app.route("/rest/<user_id>/history", methods=['GET', 'POST'])
+def show_history(user_id):
     historical_records = [ldr.get_item_description(x.item_id) + " rated with " + str(x.rating)
                           for x in rs.user_histories.get(user_id, [])]
-    predicted_interpretation = [ldr.get_item_description(x) for x in interests]
     response = {
-        "recommendations": interests,
-        "recommendation_names": predicted_interpretation,
-        "history": historical_records
+        "history": historical_records,
     }
     return jsonify(response)
 
 
 @app.route("/rest/<user_id>/<item_id>/rate", methods=['POST'])
-def save_rate(user_id, item_id):
+def rate(user_id, item_id):
     try:
         rs.add_data(user_id, item_id, rating=float(request.args.get("rating", "5.0")))
         return jsonify({'ok': True})
