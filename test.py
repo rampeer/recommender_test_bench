@@ -22,8 +22,11 @@ def absolute_error(a, b):
 
 print("ANN CV")
 cv_results_ann = Counter()
+ann_param_map = {}
+i = 0
 for last_layer_size in [8, 16, 32, 64]:
     for lr in [0.0001 ,0.0005, 0.001, 0.005]:
+        i += 1
         params = {"item_embedding_size": last_layer_size * 2,
                   "user_embedding_size": last_layer_size * 2,
                   "dense_sizes": [last_layer_size * 4, last_layer_size * 2, last_layer_size],
@@ -33,7 +36,8 @@ for last_layer_size in [8, 16, 32, 64]:
         score = ev.evaluate_scoring(recs,
                                     scorers=[squared_error, absolute_error], test_partitions=["valid"])
         print("ANN (%d %f) %f %f" % (last_layer_size, lr, score[0], score[1]))
-        cv_results_ann[frozenset(params.items())] = -score[0]
+        cv_results_ann[i] = -score[0]
+        ann_param_map[i] = params
 
 print("Performing CV for UserBasedCF")
 cv_results_user_based = Counter()
@@ -69,5 +73,5 @@ print("SVD(", best_params, ")", ev.evaluate_scoring(SVDBasedCF(best_params), **f
 best_params = cv_results_user_based.most_common(1)[0][0]
 print("UserBasedCF(", best_params, ")", ev.evaluate_scoring(UserBasedNNCF(*best_params), **final_eval_params))
 
-best_params = cv_results_ann.most_common(1)[0][0]
-print("ANN(", best_params, ")", ev.evaluate_scoring(UserBasedNNCF(**dict(best_params)), **final_eval_params))
+best_params = ann_param_map[cv_results_ann.most_common(1)[0][0]]
+print("ANN(", best_params, ")", ev.evaluate_scoring(ANNRecs(**dict(best_params)), **final_eval_params))
