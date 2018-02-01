@@ -24,11 +24,27 @@ def recommend_for_user(user_id):
     return jsonify(response)
 
 
-@app.route("/rest/<user_id>/<item_id>/rate", methods=['GET', 'POST'])
+@app.route("/rest/<user_id>/<item_id>/rate", methods=['POST'])
 def save_rate(user_id, item_id):
     try:
         rs.add_data(user_id, item_id, rating=float(request.args.get("rating", "5.0")))
         return jsonify({'ok': True})
+    except Exception as e:
+        logging.exception("Exception during subscriber optimization")
+        return jsonify({'ok': False, 'error': str(e)}), 400
+
+
+@app.route("/rest/find_item/<query>/", methods=['POST', 'GET'])
+def find_item(query: str):
+    try:
+        tokens = set(query.split())
+        found = {}
+        for item_id, item in ldr.movies.items():
+            if len(set(item.name.split()) & tokens) == len(tokens):
+                found[item_id] = str(item)
+                if len(found) > 30:
+                    break
+        return jsonify(found)
     except Exception as e:
         logging.exception("Exception during subscriber optimization")
         return jsonify({'ok': False, 'error': str(e)}), 400
