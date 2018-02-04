@@ -60,8 +60,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Movie recommender engine')
     parser.add_argument("--port", default=80, help="Port for server")
     (args) = parser.parse_args()
+    print("Starting up")
     # Populating recommender system with data
-    ldr = MovieLensLoader("data/movielens/", 10000000)
+    ldr = MovieLensLoader("data/movielens/", 1000)
     rs = SVDBasedCF(70)
     for r in ldr.get_records():
         rs.add_data(r.user_id, r.item_id, r.rating, r.timestamp)

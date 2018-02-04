@@ -1,3 +1,8 @@
 # Requiring python3.6-dev for this library
 sparsesvd==0.2.2
 tqdm==4.19.4
+Flask==0.12.2
+pandas==0.20.2
+keras==2.1.2
+tensorflow==1.1.0
+py-postgresql==1.2.1

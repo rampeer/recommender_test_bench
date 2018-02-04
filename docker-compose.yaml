@@ -1,0 +1,27 @@
+version: "2"
+
+services:
+  postgres:
+    container_name: postgres
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./database:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgress
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432
+
+  application:
+    build: .
+    image: app
+    links:
+      - postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgress
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./data/:/app/data/
