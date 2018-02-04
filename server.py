@@ -40,13 +40,13 @@ def rate(user_id, item_id):
         return jsonify({'ok': False, 'error': str(e)}), 400
 
 
-@app.route("/rest/find_item/<query>/", methods=['POST', 'GET'])
-def find_item(query: str):
+@app.route("/rest/find_item/", methods=['POST', 'GET'])
+def find_item():
     try:
-        tokens = set(query.split())
+        tokens = set(request.args.get("query", "").lower().split())
         found = {}
         for item_id, item in ldr.movies.items():
-            if len(set(item.name.split()) & tokens) == len(tokens):
+            if len(set(item.name.lower().split()) & tokens) == len(tokens):
                 found[item_id] = str(item)
                 if len(found) > 30:
                     break
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     (args) = parser.parse_args()
     print("Starting up")
     # Populating recommender system with data
-    ldr = MovieLensLoader("data/movielens/", 1000)
+    ldr = MovieLensLoader("data/movielens/", 1000000)
     rs = SVDBasedCF(70)
     for r in ldr.get_records():
         rs.add_data(r.user_id, r.item_id, r.rating, r.timestamp)
