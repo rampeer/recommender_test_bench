@@ -1,3 +1,63 @@
+This repository contains recommender system microservice.
+
+## Microservice description
+
+### Launching the service
+
+You can launch whole service by running single
+
+```
+docker-compose up
+```
+
+This will launch the whole service. You might want to edit
+docker-compose.yaml to specify recommender engine or ports.
+
+Alternatively, you may launch recommender system without Docker
+by running server.py:
+
+```
+python3.6 server.py
+```
+
+By default it launches on 80 port, but you may specify it:
+
+```
+python3.6 server.py --port 5757
+```
+
+### API
+
+This microservice has two primary endpoints:
+
+```
+/rest/<user_id>/recommend
+```
+
+returns JSON with recommendations for that particular user and
+
+```
+/rest/<user_id>/<movie_id>/rate?rating=<rating>
+```
+
+assigns a rating to the user. It may also triggers recommendations update.
+
+Also, microservice has two debug endpoints:
+
+```
+/rest/<user_id>/history
+```
+
+returns user rating history.
+
+```
+/rest/search?query=<name>
+```
+
+Finds and returns item IDS by item names.
+
+## Algorithms description
+
 This repository contains implementation of different recommender algorithms, along with code to evaluate them against
 MovieLens dataset. Currently implemented algorithms:
 
@@ -5,9 +65,6 @@ MovieLens dataset. Currently implemented algorithms:
 - Neural Collaborative Filtering
 - Matrix Factorization (SVD) based recommender
 
-I made this repository to improve my understanding of "classic" recommender engines, try new ones, and test some coding techniques.
-For example, type of every argument, variable and returning value is annotated with PyCharm-styled comments
-(and I found out that typing.Counter is properly implemented only in Python 3.6).
 
 ## Recommender algorithms
 
@@ -101,38 +158,3 @@ Please note that despite my CF implementation uses heuristic sampling, search sp
 much slower than competitors. Also, it does not support online learning (like SVD), and model has to be rebuilt from
 scratch to use new interactions and be able to make predictions for new users. These effects will be captured with
 other testing scenarios.
-
-## Running a service
-
-### Launching the server
-
-You can launch recommender system by running server.py:
-
-```
-python3.6 server.py
-```
-
-By default it launches on 80 port, but you may specify it:
-
-```
-python3.6 server.py --port 5757
-```
-
-### API
-
-This service have two endpoints:
-
-```
-/rest/<user_id>/recommend
-```
-
-returns JSON with "recommendations" field which holds list of identifiers of recommended movies. 
-It also contains "history" debug field with list of users ratings (may contain duplicates!) and "recommendation_names" with human-readable recommendation list. 
-
-Second endpoint,
-
-```
-/rest/<user_id>/<movie_id>/rate?rating=<rating>
-```
-
-assigns a rating to the user. It may also triggers recommendations update.
