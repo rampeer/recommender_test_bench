@@ -1,16 +1,6 @@
-from collections import namedtuple
 from typing import List, Dict
 
-
-class ItemRating:
-    def __init__(self, user_id: str, item_id: str, rating: float, timestamp: int=0):
-        self.user_id = user_id
-        self.item_id = item_id
-        self.rating = rating
-        self.timestamp = timestamp
-
-    def __str__(self):
-        return "User %s rated %s (%d)" % (self.user_id, self.item_id, self.rating)
+from common import ItemRating
 
 
 class RecommenderEngine:

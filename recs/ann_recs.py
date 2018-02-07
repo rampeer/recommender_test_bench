@@ -1,7 +1,7 @@
 from typing import List, Tuple, Dict, Iterable, Set
 import numpy as np
 
-from recs.recommender_engine import ItemRating
+from common import ItemRating
 from .recommender_engine import RecommenderEngine
 from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Input, Dot, Embedding, Flatten, Add, Concatenate

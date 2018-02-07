@@ -3,7 +3,7 @@ from typing import Dict, List
 from scipy.sparse import dok_matrix
 import numpy as np
 
-from recs.recommender_engine import ItemRating
+from common import ItemRating
 
 
 class MatrixBuilder:

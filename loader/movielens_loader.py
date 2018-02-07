@@ -1,33 +1,7 @@
 import pandas as pd
 from typing import Iterable, List, Dict
-
-from recs.recommender_engine import ItemRating
-
-
-class Loader:
-    """
-    It is useful to put data loading/mangling in one separate class.
-    This way we can test our RSs on different datasets without changing their logic (in theory at least)
-    """
-
-    def get_records(self) -> Iterable[ItemRating]:
-        raise NotImplementedError()
-
-    def get_item_genres(self, item_id):
-        return []
-
-    def get_item_description(self, item_id) -> str:
-        raise NotImplementedError()
-
-
-class Item:
-    def __init__(self, item_id: str, name: str, genres: List[str]):
-        self.item_id = item_id
-        self.name = name
-        self.genres = genres
-
-    def __str__(self):
-        return "Movie #%s: %s (genres: %s)" % (self.item_id, self.name, ",".join(self.genres))
+from .loader import Loader
+from common import Item, ItemRating
 
 
 class MovieLensLoader(Loader):

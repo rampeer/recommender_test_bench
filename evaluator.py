@@ -4,7 +4,8 @@ from typing import List, Dict, Callable, Tuple
 import operator
 
 from loader import Loader
-from recs.recommender_engine import RecommenderEngine, ItemRating
+from recs.recommender_engine import RecommenderEngine
+from common import ItemRating
 
 
 class Evaluator:

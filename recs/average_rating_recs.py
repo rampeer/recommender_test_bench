@@ -1,7 +1,7 @@
-from typing import Dict, Counter
+from typing import Counter
 
 from recs import RecommenderEngine
-from utils import avg_update
+from common import avg_update
 from collections import Counter
 
 
