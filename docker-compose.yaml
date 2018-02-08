@@ -1,24 +1,23 @@
 version: "2"
 
 services:
-  postgres:
-    container_name: postgres
+  pg:
+    container_name: rs_pg
     restart: always
     image: postgres:latest
     volumes:
       - ./database:/var/lib/postgresql
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgress
-      - POSTGRES_DB=postgres
-    expose:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mydb
+    ports:
       - 5432
 
   application:
     build: .
     image: app
     links:
-      - postgres
+      - pg
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgress

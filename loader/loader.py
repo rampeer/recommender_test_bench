@@ -1,6 +1,6 @@
-from typing import Iterable
+from typing import Iterable, Tuple
 
-from common import ItemRating
+from common import ItemRating, Item
 
 
 class Loader:
@@ -11,6 +11,12 @@ class Loader:
 
     def get_records(self) -> Iterable[ItemRating]:
         raise NotImplementedError()
+
+    def get_items(self) -> Iterable[Tuple[str, Item]]:
+        raise NotImplementedError()
+
+    def put_record(self, item_id: str, user_id: str, rating: float, timestamp: int):
+        pass
 
     def get_item_genres(self, item_id):
         return []

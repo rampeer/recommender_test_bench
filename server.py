@@ -1,10 +1,11 @@
 import argparse
 import logging
 
+import time
 from flask import Flask, request, jsonify
 
-from loader import MovieLensLoader
-from recs import SVDBasedCF
+from loader import MovieLensLoader, PostgresLoader
+from recs import SVDBasedCF, UserBasedNNCF
 
 app = Flask(__name__)
 
@@ -32,11 +33,13 @@ def show_history(user_id):
 @app.route("/rest/<user_id>/<item_id>/rate", methods=['POST'])
 def rate(user_id, item_id):
     try:
-        rs.add_data(user_id, item_id, rating=float(request.args.get("rating", "5.0")))
+        rating = float(request.args.get("rating", "5.0"))
+        ldr.put_record(user_id, item_id, rating, int(time.time()))
+        rs.add_data(item_id, user_id, rating=rating)
         rs.online_update_step(user_id, item_id)
         return jsonify({'ok': True})
     except Exception as e:
-        logging.exception("Exception during subscriber optimization")
+        logging.exception("Exception during rating")
         return jsonify({'ok': False, 'error': str(e)}), 400
 
 
@@ -45,14 +48,14 @@ def find_item():
     try:
         tokens = set(request.args.get("query", "").lower().split())
         found = {}
-        for item_id, item in ldr.movies.items():
+        for item_id, item in ldr.get_items():
             if len(set(item.name.lower().split()) & tokens) == len(tokens):
                 found[item_id] = str(item)
                 if len(found) > 30:
                     break
         return jsonify(found)
     except Exception as e:
-        logging.exception("Exception during subscriber optimization")
+        logging.exception("Exception during search")
         return jsonify({'ok': False, 'error': str(e)}), 400
 
 
@@ -62,9 +65,13 @@ if __name__ == "__main__":
     (args) = parser.parse_args()
     print("Starting up")
     # Populating recommender system with data
-    ldr = MovieLensLoader("data/movielens/", 1000000)
+    ldr = PostgresLoader("postgres", "postgres", "rs_pg", 5432, "mydb")
     rs = SVDBasedCF(70)
+    i = 0
     for r in ldr.get_records():
+        i += 1
+        if i > 1000:
+            break
         rs.add_data(r.user_id, r.item_id, r.rating, r.timestamp)
     rs.build()
 
