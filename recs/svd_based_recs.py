@@ -20,7 +20,7 @@ class SVDBasedCF(RecommenderEngine):
         self.item_vectors = dict()  # type: Dict[str, np.array]
         self.item_average_rating = dict()  # type: Dict[str, float]
 
-        # Stuff for half-update step
+        # Stuff for online update step
         self.rating_matrix_demeaned = None # type: Optional[dok_matrix]
         self.col_vectors = None  # type: Optional[np.array]
         self.col_vectors_inv = None # type: Optional[np.array]

@@ -3,7 +3,6 @@ import logging
 
 import time
 from flask import Flask, request, jsonify
-
 from loader import MovieLensLoader, PostgresLoader
 from recs import SVDBasedCF, UserBasedNNCF
 
@@ -34,8 +33,8 @@ def show_history(user_id):
 def rate(user_id, item_id):
     try:
         rating = float(request.args.get("rating", "5.0"))
-        ldr.put_record(user_id, item_id, rating, int(time.time()))
-        rs.add_data(item_id, user_id, rating=rating)
+        ldr.put_record(item_id, user_id, rating, int(time.time()))
+        rs.add_data(user_id, item_id, rating=rating)
         rs.online_update_step(user_id, item_id)
         return jsonify({'ok': True})
     except Exception as e:
@@ -67,12 +66,11 @@ if __name__ == "__main__":
     # Populating recommender system with data
     ldr = PostgresLoader("postgres", "postgres", "rs_pg", 5432, "mydb")
     rs = SVDBasedCF(70)
-    i = 0
+
     for r in ldr.get_records():
-        i += 1
-        if i > 1000:
-            break
         rs.add_data(r.user_id, r.item_id, r.rating, r.timestamp)
     rs.build()
+
+    print("RS knows %d users and %d items" % (len(rs.user_histories), len(rs.item_histories)))
 
     app.run("0.0.0.0", port=args.port)

@@ -4,7 +4,7 @@
 from loader import PostgresLoader
 from loader import MovieLensLoader
 
-source = MovieLensLoader("data/movielens/", 2000000)
+source = MovieLensLoader("data/movielens/", 15000000)
 destination = PostgresLoader("postgres", "postgres", "rs_pg", 5432, "mydb", True)
 
 destination.replace_items(source.movies.values())
