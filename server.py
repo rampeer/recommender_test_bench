@@ -49,7 +49,7 @@ def find_item():
         found = {}
         for item_id, item in ldr.get_items():
             if len(set(item.name.lower().split()) & tokens) == len(tokens):
-                found[item_id] = str(item)
+                found[item_id] = str(item) + "(" + str(len(rs.item_histories.get(item_id, set()))) + " raters)"
                 if len(found) > 30:
                     break
         return jsonify(found)
