@@ -1,63 +1,3 @@
-This repository contains recommender system microservice.
-
-## Microservice description
-
-### Launching the service
-
-You can launch whole service by running single
-
-```
-docker-compose up
-```
-
-This will launch the whole service. You might want to edit
-docker-compose.yaml to specify recommender engine or ports.
-
-Alternatively, you may launch recommender system without Docker
-by running server.py:
-
-```
-python3.6 server.py
-```
-
-By default it launches on 80 port, but you may specify it:
-
-```
-python3.6 server.py --port 5757
-```
-
-### API
-
-This microservice has two primary endpoints:
-
-```
-/rest/<user_id>/recommend
-```
-
-returns JSON with recommendations for that particular user and
-
-```
-/rest/<user_id>/<movie_id>/rate?rating=<rating>
-```
-
-assigns a rating to the user. It may also triggers recommendations update.
-
-Also, microservice has two debug endpoints:
-
-```
-/rest/<user_id>/history
-```
-
-returns user rating history.
-
-```
-/rest/search?query=<name>
-```
-
-Finds and returns item IDS by item names.
-
-## Algorithms description
-
 This repository contains implementation of different recommender algorithms, along with code to evaluate them against
 MovieLens dataset. Currently implemented algorithms:
 
@@ -68,33 +8,33 @@ MovieLens dataset. Currently implemented algorithms:
 
 ## Recommender algorithms
 
-Currently I assume that our goal is rating predictions.
+Currently, I consider only rating prediction-based recommenders.
 
 There are other tasks such as making predictions for implicit actions (i.e. without direct ratings from users) and
-top-N recommendations where we have to provide list of recommendations. It is very wide and interesting area of research,
-but currently I'm just too fed up with them on my main job. Someday I will put them here.
+top-N recommendations where we have to provide the list of recommendations. It is very wide and interesting area of research,
+but currently, I'm just too fed up with them on my main job. Someday I will put them here, I promise.
 
 ### User-based collaborative filtering
 
 [Source](recs/user_cf.py)
 
-The staple of recommender systems, almost synonymous to them. For each user, this system finds N similar users
-(using some similarity measure), and uses actions of this neighbourhood to make predictions for the user.
+The holy staple of recommender systems, almost synonymous with them. For each user, this system finds N similar users
+(using some similarity measure), and uses actions of this neighborhood to make predictions for the user.
 The algorithm is described in details [here](https://doi.org/10.1145/192844.192905) and
 [here](https://doi.org/10.1145/371920.372071).
 
-Pearson correlation is used to measure user similarity, as it is commonly employed in literature.
+Pearson correlation is used to measure user similarity, as it is commonly employed in the literature.
 Rating average and weighted rating average may be used for prediction.
 Several engineering techniques such as lookups and sampling were used to speed up model computation.
-I haven't found any proper implementations of User-based CF, as authors tend miss the fact that we
+I haven't found any proper implementations of User-based CF, as authors tend to miss the fact that we
 should take into account only co-rated items.
 
 ### SVD-based recommender system
 
 [Source](recs/svd_based_recs.py)
 
-Recommender system based on matrix factorization of user-rating matrix. It can be viewed as assigning vectors to each
-item and user that way that dot product of these vectors would predict the rating (or deviance of the rating from
+Recommender system based on matrix factorization of the user-rating matrix. It can be viewed as assigning vectors to each
+item and the user that way that dot product of these vectors would predict the rating (or deviance of the rating from
 average, see details below). This recommender is somewhat related to collaborative filtering, as it also
 "clusters" users together in some latent space, but it does that softly by projecting ratings.
 
@@ -136,6 +76,12 @@ Cross-validation and evaluation is done by running.
 python3.6 test.py
 ```
 
+or (using Docker)
+
+```
+make fill-db
+```
+
 Dataset is divided into train, validation and test sets (by time in order to more closely emulate real) in 70% / 15% / 15% proportions.
 
 RMSE and MAE are used to evaluate recommender engine. If we would accurately predict user rating, then will accurately make Top-N recommendations. There is [controversy regarding MSE and MAE](https://medium.com/netflix-techblog/netflix-recommendations-beyond-the-5-stars-part-1-55838468f429) for recommender system evaluation, but it's still widely used. I've decided to use it because rating prediction - based metrics are more "fine-grained" (i.e. small improvement in recommender system may not impact NDCG/AUC/Precision/Recall, but will be visible on MSE/MAE, which is especially good for cross-validation).
@@ -158,3 +104,64 @@ Please note that despite my CF implementation uses heuristic sampling, search sp
 much slower than competitors. Also, it does not support online learning (like SVD), and model has to be rebuilt from
 scratch to use new interactions and be able to make predictions for new users. These effects will be captured with
 other testing scenarios.
+
+## Running the service
+
+### Launching the service
+
+You can launch whole service by running single
+
+```
+make
+```
+
+This will launch the whole service. Before that, you can populate the database with MovieLens dataset using
+
+```
+make fill-db
+``` 
+
+You also might want to edit docker-compose.yaml and Makefile to specify recommender engine or ports.
+
+Alternatively, you may launch recommender system without Docker
+by running server.py:
+
+```
+python3.6 server.py
+```
+
+By default it launches on 80 port, but you may specify it:
+
+```
+python3.6 server.py --port 5757
+```
+
+### API
+
+This service has two primary endpoints:
+
+```
+/rest/<user_id>/recommend
+```
+
+returns JSON with recommendations for that particular user and
+
+```
+/rest/<user_id>/<movie_id>/rate?rating=<rating>
+```
+
+assigns a rating to the user. It may also triggers recommendations update.
+
+Also, service has two debug endpoints:
+
+```
+/rest/<user_id>/history
+```
+
+returns user rating history.
+
+```
+/rest/search?query=<name>
+```
+
+Finds and returns item IDS by item names.
