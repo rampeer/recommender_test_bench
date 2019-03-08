@@ -59,6 +59,25 @@ then it uses several stacked of fully-connected layers to make the prediction.
 This code is straightforward implementation of the [paper](https://doi.org/10.1145/3038912.3052569). The only thing
 I had to make is change task type from classification with logloss to regression with MSE.
 
+### Product-based Neural Network
+
+This model is described in this [paper](https://arxiv.org/pdf/1611.00144.pdf). 
+The "product" means "inner/outer product" (not "shop item"). 
+
+The core idea of this model is to map each field (feature) into an embedding, and calculate pairwise dot products of all
+embeddings (with extra product with "1" vector for capturing of linear, non-quadratic effects). After that we pass 
+the results through several dense layers. The output of the this model is a single value, probability.
+
+Authors propose two flavours of this architecture: with inner (dot) product and with outer product.
+
+Model can be applied to the recommendation task; however, as one may notice, without any extra user or item feature
+the model becomes similar to ALS/SVD recommender system (there are two "features": used ID and item ID; and single item
+interaction).
+
+### Convolutional Click Prediction Model
+
+[Paper](http://www.escience.cn/system/download/73676)
+
 ### Average rating
 
 [Source](recs/average_rating_recs.py)
